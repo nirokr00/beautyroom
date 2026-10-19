@@ -27,8 +27,8 @@ body{min-height:100vh;padding:env(safe-area-inset-top) 0 calc(env(safe-area-inse
 .pick{position:relative}
 .pick button,.btn{font:500 14px var(--sans);border:0;border-radius:999px;background:var(--white);color:var(--mint-ink);padding:10px 16px;box-shadow:0 1px 0 var(--sand)}
 .pick input{position:absolute;inset:0;opacity:0;width:100%;height:100%}
-h1{font:400 44px/1.05 var(--serif);margin:22px 0 6px;letter-spacing:-.02em;text-transform:capitalize}
-.sub{font:400 17px var(--serif);color:var(--mute);margin:0 0 16px}
+h1{font:400 26px/1.1 var(--serif);margin:14px 0 2px;letter-spacing:-.02em;text-transform:capitalize}
+.sub{font:400 14px var(--serif);color:var(--mute);margin:0 0 12px}
 .nav{display:flex;gap:8px;margin-bottom:18px}
 .nav .btn{flex:1;text-align:center}
 .chip{display:inline-block;background:var(--mint);color:var(--mint-ink);font-weight:600;font-size:13px;padding:7px 13px;border-radius:999px;margin-bottom:14px}
@@ -89,6 +89,17 @@ span.chip{margin:0 4px 6px 0}
 .cd.p{background:linear-gradient(135deg,var(--mint) 50%,var(--sand) 50%)}.cd.f{border:1px dashed var(--mint-d)}
 .rv{display:block;font-size:13px;color:var(--ink);margin-top:5px}
 .or{color:#C9772E;font-weight:600}.warn{font-weight:600}
+.rl{background:#fff;border-radius:20px;padding:4px 14px;margin-bottom:10px}
+.rw{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--beige)}.rw:last-child{border:0}
+.rw .ph{width:46px;height:46px;border-radius:14px;font-size:22px}.rw .ph.rest{background:#F8D9C4;display:grid;place-items:center;position:relative}
+.rt{flex:1;min-width:0;font-size:13px;color:var(--mute);line-height:1.3}.rt b{display:block;color:var(--ink);font-size:14px}
+.gl{font:600 11px var(--sans);text-transform:uppercase;letter-spacing:.08em;color:var(--mint-d);margin:10px 0 0}
+.ck{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:15px;color:var(--ink)}.ck input{width:20px;height:20px;accent-color:var(--mint-d)}
+.dd{background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:8px}.dd summary{font:500 14px var(--sans)}
+.car{display:flex;gap:10px;overflow-x:auto;padding:12px 2px 4px}.car .ph{width:56px;height:56px;flex:none}
+.car small{display:block;font-size:10px;max-width:58px;text-align:center;color:var(--mute);margin-top:4px;overflow-wrap:anywhere}
+.sq{display:block;width:100%;font:16px var(--sans);padding:11px 14px;margin:0 0 12px;border:1px solid var(--sand);border-radius:14px;background:#fff;color:var(--ink)}
+.rc{padding:12px 8px 4px}.rcell{flex:none;text-align:center}.rcell .ph.rest{background:#F8D9C4;display:grid;place-items:center;position:relative;font-size:26px}.rcell .ed{padding:2px 8px;font-size:14px}
 </style>
 </head>
 <body>
@@ -200,6 +211,7 @@ let cur=noon(new Date()), tab = new Date().getHours()>=17||new Date().getHours()
 let done={}; try{done=JSON.parse(localStorage.getItem('skin-done')||'{}')}catch(e){}
 const save=()=>{try{localStorage.setItem('skin-done',JSON.stringify(done))}catch(e){}};
 
+const row=(id,n,t,ed)=>{const x=inv(id)||{name:'?'};return `<div class="rcell">${ph('i_'+id,'🧴',n)}${photos['i_'+id]?'':`<small>${esc(x.name)}</small>`}${t?`<small>${esc(t)}</small>`:''}${ed||''}</div>`};
 function renderFace(){
   const r=routine(cur), today=noon(new Date());
   const diff=Math.round((cur-today)/864e5);
@@ -217,11 +229,13 @@ function renderFace(){
   }
   const items=r[tab], tag=r[tab+'Tag'];
   $('chips').innerHTML=`<span class="chip">${r.phase}</span> `+(tag?`<span class="chip ${r.rest&&tab==='pm'?'rest':''}">${tag}</span>`:'');
-  let last='';
-  list.innerHTML=items.map((p,i)=>{
-    const id=`${key(cur)}|${tab}|${i}`, rest=p===REST, it=rest?null:inv(faceId(p.k));
-    let h=''; if(!rest&&p.g&&p.g!==last){h=`<div class="gh">${p.g}</div>`;last=p.g}
-    return h+`<div class="card${rest?' rest':''}${done[id]?' done':''}" data-act="ftog" data-i="${i}">${rest?`<div class="ph">${p.e}<span class="n">${i+1}</span></div>`:ph('i_'+it.id,p.e,i+1)}<div class="tx"><b>${esc(rest?p.n:it.name)}${rest?'':wr(it.id)}</b><span>${esc(p.t)}${rest?'':' · '+uses(it.id)+' usos'}</span></div><div class="chk">✓</div>${rest?'':`<button class="ed" data-act="fedit" data-k="${p.k}">✎</button>`}</div>`}).join('');
+  let last='', rows='';
+  items.forEach((p,i)=>{const rest=p===REST, it=rest?null:inv(faceId(p.k));
+    if(!rows)rows='<div class="car rc">';
+    rows+=rest?`<div class="rcell"><div class="ph rest">${p.e}<span class="n">${i+1}</span></div><small>${p.n}</small></div>`:row(it.id,i+1,wr(it.id),`<button class="ed" data-act="fedit" data-k="${p.k}">✎</button>`)});
+  rows+='</div>';
+  const rk=`${key(cur)}|${tab}`;
+  list.innerHTML=`<div class="rl">${rows}</div>`+(key(cur)>key(new Date())?'':`<button class="btn wide pri" data-act="listo">${data.reg[rk]?'Registrada ✓ · corregir':'Listo'}</button>`);
 }
 const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
 const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -247,7 +261,7 @@ function mig(){
   data.inv.forEach(x=>{if(!x.reg)x.reg='Parcial'});
   Object.keys(photos).forEach(k=>{const n=k.startsWith('x_')?'i_'+k.slice(2):P[k]?'i_f_'+k:null;if(n&&!photos[n])photos[n]=photos[k]});
 }
-const fix=()=>{if(!data.mk)data.mk={since:key(new Date()),base:[],log:{}};data.inv=data.inv||[];data.slot=data.slot||{};data.hist=data.hist||{};mig()};fix();
+const fix=()=>{if(!data.mk)data.mk={since:key(new Date()),base:[],log:{}};data.inv=data.inv||[];data.slot=data.slot||{};data.hist=data.hist||{};data.reg=data.reg||{};data.add=data.add||{};mig()};fix();
 const coll=()=>sec==='mk'?data.mk.base:data[sec];
 const mkDay=k=>data.mk.log[k]||(data.mk.log[k]={off:[],extra:[]});
 const nextDay=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+1,12);
@@ -256,6 +270,7 @@ function usesOf(id,from,to){
   Object.keys(done).forEach(k=>{const[d,t,x]=k.split('|'); if(!ok(d))return;
     if(t==='am'||t==='pm'){const r=routine(pd(d)),it=r.phase&&r[t][+x]; if(it&&it.k&&faceIdAt(it.k,d)===id)n++}
     else if(x===id&&data[t]&&data[t].some(z=>z.id===x))n++});
+  Object.entries(data.add).forEach(([k,a])=>{if(ok(k.slice(0,10)))a.forEach(e=>{if(e===id)n++})});
   Object.entries(data.mk.log).forEach(([d,L])=>{if(ok(d))(L.extra||[]).forEach(e=>{if(e===id)n++})});
   if(data.mk.base.some(b=>b.id===id))for(let d=pd(data.mk.since);key(d)<=key(new Date());d=nextDay(d)){const k=key(d);if(ok(k)&&!((data.mk.log[k]||{}).off||[]).includes(id))n++}
   return n}
@@ -263,6 +278,16 @@ const dueOf=p=>{if(p.status==='Terminado')return null;const c=[];if(p.expiry)c.p
   if(p.status==='En uso'&&p.opened&&p.pao){const d=pd(p.opened);d.setMonth(d.getMonth()+Number(p.pao));c.push(key(d))}return c.sort()[0]||null};
 const daysLeft=p=>{const d=dueOf(p);return d?dbt(new Date(),pd(d)):null};
 const wr=id=>{const x=inv(id),l=x?daysLeft(x):null;return l!==null&&l<30?' ⚠️':''};
+const TIPOS=['—','Limpieza','Serum','Medicamento','Humectación','Protector'];
+const KT={};['2026-10-18','2026-10-19','2026-11-09','2026-11-10','2026-11-11','2026-12-09'].forEach(d=>{const r=routine(pd(d));if(r.phase)[['am','Mañana'],['pm','Noche']].forEach(([t,l])=>(r[t]||[]).forEach(p=>{if(p.k)(KT[p.k]=KT[p.k]||new Set()).add(l)}))});
+const stepOf=p=>{const o=[];
+  new Set(Object.values(P).map(v=>v.k)).forEach(k=>{if(faceId(k)===p.id)o.push(`Rostro: ${[...(KT[k]||[])].join(' y ')} · ${P[k].g}`)});
+  [['body','Cuerpo'],['hair','Cabello']].forEach(([s,c])=>{const e=data[s].find(x=>x.id===p.id);if(e)o.push(`${c}: ${e.when||''} · ${e.days.length===7?'diario':e.days.length?e.days.map(d=>DAYN[d]).join(' '):'sin días'}`)});
+  if(data.mk.base.some(x=>x.id===p.id))o.push('Maquillaje: rutina base');
+  return o.length?'Paso → '+o.join('; '):''};
+const norm=t=>String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+let invQ='';
+function applyQ(){const q=norm(invQ.trim());document.querySelectorAll('#list .grp').forEach(g=>{let v=0;g.querySelectorAll('.card[data-s]').forEach(c=>{const m=!q||c.dataset.s.includes(q);c.style.display=m?'':'none';if(m)v++});g.style.display=v?'':'none'})}
 const uses=id=>{const x=inv(id)||{};return usesOf(id,x.opened||'0000',x.finished||key(new Date()))};
 const routineIds=()=>{const s=new Set(Object.values(P).map(v=>faceId(v.k)));data.body.concat(data.hair,data.mk.base).forEach(x=>s.add(x.id));return s};
 const swap=(k,n)=>{const old=inv(faceId(k));if(n.id===old.id)return;const T=key(new Date());(data.hist[k]=data.hist[k]||[]).push({id:old.id,until:T});
@@ -283,31 +308,28 @@ function render(){
   renderFace();
   if(all) $('list').innerHTML=invHTML(invF); else if(sub==='i') $('list').innerHTML=invHTML(CAT[sec]);
   else if(sub==='c') $('list').innerHTML=calSec(); else if(!f) $('list').innerHTML=listHTML();
+  if(all||sub==='i') applyQ();
 }
 function listHTML(){
   if(sec==='mk') return mkHTML();
-  const dow=cur.getDay(), arr=data[sec], on=arr.filter(p=>p.days.includes(dow)), un=arr.filter(p=>!p.days.length);
-  const card=(p,act)=>{const id=`${key(cur)}|${sec}|${p.id}`;
-    return `<div class="card${done[id]?' done':''}" ${act?`data-act="tog" data-id="${p.id}"`:''}>${ph('i_'+p.id,p.e||'🧴')}<div class="tx"><b>${esc(nm(p))}${wr(p.id)}</b><span>${[uses(p.id)+' usos',p.when,p.note,act?'':'Sin frecuencia definida'].filter(Boolean).map(esc).join(' · ')}</span></div>${act?'<div class="chk">✓</div>':''}<button class="ed" data-act="edit" data-id="${p.id}">✎</button></div>`};
-  const lbl=p=>p.days.length===7?'Todos los días':p.days.map(d=>DAYN[d]).join(' · ');
-  return (on.length?on.map(p=>card(p,1)).join(''):'<div class="empty">Hoy no toca ningún producto aquí 🌿</div>')
-   +(un.length?'<div class="gh">Sin frecuencia · toca ✎ para elegir los días</div>'+un.map(p=>card(p,0)).join(''):'')
-   +'<button class="btn wide" data-act="add">+ Agregar producto</button>';
-}
+  const dow=cur.getDay(), arr=data[sec], on=arr.filter(p=>p.days.includes(dow)), un=arr.filter(p=>!p.days.length), k=key(cur), rk=`${k}|${sec}`;
+  const ed=p=>`<button class="ed" data-act="edit" data-id="${p.id}">✎</button>`;
+  return (on.length?`<div class="rl"><div class="car rc">${on.map((p,i)=>row(p.id,i+1,[p.when,p.note].filter(Boolean).join(' · ')+wr(p.id),ed(p))).join('')}</div></div>`:'<div class="empty">Hoy no toca ningún producto aquí 🌿</div>')
+   +(on.length&&k<=key(new Date())?`<button class="btn wide pri" data-act="listo">${data.reg[rk]?'Registrada ✓ · corregir':'Listo'}</button>`:'')
+   +(un.length?'<div class="gh">Sin frecuencia · toca ✎ para elegir los días</div><div class="rl"><div class="car rc">'+un.map(p=>row(p.id,'',p.when||'',ed(p))).join('')+'</div></div>':'')
+   +'<button class="btn wide" data-act="add">+ Agregar producto</button>'}
 function mkHTML(){
   const k=key(cur), L=data.mk.log[k]||{}, B=data.mk.base, off=L.off||[], ex=L.extra||[];
-  const none=B.length&&B.every(b=>off.includes(b.id))&&!ex.length;
-  let h=B.length?B.map(b=>`<div class="card ${off.includes(b.id)?'off':'use'}" data-act="mktog" data-id="${b.id}">${ph('i_'+b.id,b.e||'💄')}<div class="tx"><b>${esc(nm(b))}${wr(b.id)}</b><span>${uses(b.id)} usos · ${off.includes(b.id)?'No lo usé':'Usado'} · toca para cambiar</span></div><div class="chk">✓</div><button class="ed" data-act="edit" data-id="${b.id}">✎</button></div>`).join(''):'<div class="empty">Agrega los productos de tu rutina base 💄</div>';
-  if(ex.length) h+='<div class="gh">Extras de este día</div>'+ex.map((n,i)=>`<span class="chip" data-act="mkxdel" data-i="${i}">${esc((inv(n)||{name:n}).name)} ×</span>`).join('');
-  h+='<button class="btn wide" data-act="mkx">+ Usé algo extra</button>'+(B.length?`<button class="btn wide" data-act="mkno">${none?'Sí me maquillé':'Hoy no me maquillé'}</button>`:'')+'<button class="btn wide pri" data-act="add">+ Producto a la rutina base</button>';
-  return h}
+  return (B.length?`<div class="rl"><div class="car rc">${B.map((b,i)=>row(b.id,i+1,(off.includes(b.id)?'No lo usé':'')+wr(b.id),`<button class="ed" data-act="edit" data-id="${b.id}">✎</button>`)).join('')}</div></div>`:'<div class="empty">Agrega los productos de tu rutina base 💄</div>')
+   +(ex.length?'<div class="gh">Extras de este día</div><div class="rl"><div class="car rc">'+ex.map(e=>row(e,'','Extra')).join('')+'</div></div>':'')
+   +(B.length&&k<=key(new Date())?'<button class="btn wide pri" data-act="listo">Listo</button>':'')+'<button class="btn wide" data-act="add">+ Producto a la rutina base</button>'}
 function plan(k,sc=sec){
   const d=pd(k);
   if(sc==='face'){const r=routine(d); if(!r.phase)return [];
-    return ['am','pm'].map(t=>[t==='am'?'☀️ Mañana':'🌙 Noche',(r[t]||[]).map((p,i)=>({p,i})).filter(x=>x.p.k).map(({p,i})=>({id:faceIdAt(p.k,k),x:`${k}|${t}|${i}`,n:p.t}))])}
+    return ['am','pm'].map(t=>[t==='am'?'☀️ Mañana':'🌙 Noche',(r[t]||[]).map((p,i)=>({p,i})).filter(x=>x.p.k).map(({p,i})=>({id:faceIdAt(p.k,k),x:`${k}|${t}|${i}`,n:p.t})).concat((data.add[`${k}|${t}`]||[]).map(e=>({id:e,mk:true})))])}
   if(sc==='mk'){const L=data.mk.log[k]||{},off=L.off||[];
     return [['Rutina base',data.mk.base.map(b=>({id:b.id,b:1,mk:!off.includes(b.id)}))],...((L.extra||[]).length?[['Extras',L.extra.map(e=>({id:e,mk:true}))]]:[])]}
-  return [['Toca este día',data[sc].filter(p=>p.days.includes(d.getDay())).map(p=>({id:p.id,x:`${k}|${sc}|${p.id}`,n:p.when||''}))]]}
+  return [['Toca este día',data[sc].filter(p=>p.days.includes(d.getDay())).map(p=>({id:p.id,x:`${k}|${sc}|${p.id}`,n:p.when||''})).concat((data.add[`${k}|${sc}`]||[]).map(e=>({id:e,mk:true})))]]}
 const isDone=it=>it.mk!==undefined?it.mk:!!done[it.x];
 function monthCons(p){
   const sc=SEC[p.cat], T=new Date(); let pl=0,dn=0;
@@ -321,15 +343,15 @@ function calSec(){
     let st=''; if(it.length){if(kk>today)st='f';else{const dn=it.filter(isDone).length;st=dn===it.length?'u':dn?'p':'z'}}
     c+=`<button class="cd ${st}${kk===k0?' s':''}" data-act="day" data-d="${kk}">${d}</button>`}
   c+='</div><p class="hint">Verde: todo hecho · mitad: a medias · gris: sin marcar · borde: planeado</p><div class="gh">'+fmt.format(cur)+'</div>';
-  plan(k0).forEach(([t,a])=>{c+=`<div class="gh" style="margin-top:4px">${t}</div>`+(a.length?'':'<p class="hint" style="text-align:left">Nada planeado</p>');
-    a.forEach(it=>{const iv=inv(it.id)||{name:'?'},dn=isDone(it)&&k0<=today;
-      c+=`<div class="card ${dn?'use':''}" ${it.x?`data-act="cdone" data-x="${it.x}"`:it.b?`data-act="mktog" data-id="${it.id}"`:''}>${ph('i_'+iv.id,'🧴')}<div class="tx"><b>${esc(iv.name)}</b><span>${esc(it.n||'')}</span></div><div class="chk">✓</div></div>`})});
+  plan(k0).forEach(([t,a])=>{const fut=k0>today, u=fut?a:a.filter(isDone);
+    c+=`<details class="dd"><summary>${t} · ${fut?u.length+' planeados':u.length+' usados'}</summary><div class="car">`+(u.length?u.map(it=>{const iv=inv(it.id)||{name:'?'},im=photos['i_'+iv.id];
+      return `<div><div class="ph" data-act="nm" data-n="${esc(iv.name)}">${im?`<div class="img" style="background-image:url(${im})"></div>`:'🧴'}</div>${im?'':`<small>${esc(iv.name)}</small>`}</div>`}).join(''):'<p class="hint">Sin registro</p>')+'</div></details>'});
   if(sec==='mk') c+='<button class="btn wide" data-act="mkx">+ Usé algo extra este día</button>';
   return c}
 function invHTML(cat){
   const today=key(new Date()), R=routineIds(), L0=data.inv.filter(x=>cat==='Todo'||x.cat===cat), live=L0.filter(x=>x.status!=='Terminado'), dueL=live.filter(x=>{const l=daysLeft(x);return l!==null&&l<=60}).sort((a,b)=>dueOf(a)<dueOf(b)?-1:1), groups=[['⚠️ Por vencer',dueL],['En mi rutina',live.filter(x=>R.has(x.id)&&!dueL.includes(x))],['Sin rutina',live.filter(x=>!R.has(x.id)&&!dueL.includes(x))],['Terminados',L0.filter(x=>x.status==='Terminado')]];
   const card=p=>{
-    const u=uses(p.id); let info=[p.cat,p.reg==='Parcial'?'registro parcial':''], bar='', btn='', rv='';
+    const u=uses(p.id); let info=[p.cat,p.reg==='Parcial'?'registro parcial':'',stepOf(p),p.tipo&&p.tipo!=='—'?'Tipo: '+p.tipo:''], bar='', btn='', rv='';
     if(p.status==='En uso'){
       info.push(`${u} usos`);{const mc=monthCons(p);if(mc)info.push(mc)} if(p.opened) info.push(`desde ${fd(p.opened)}`);
       if(p.total){const pc=Math.min(100,Math.round(u/p.total*100)); info.push(`~${Math.max(0,p.total-u)} usos restantes`); if(pc>=80) info.push('⚠️ casi se acaba'); bar=`<div class="bar"><i style="width:${pc}%"></i></div>`}
@@ -343,10 +365,10 @@ function invHTML(cat){
     } else btn=`<button class="btn mini" data-act="start" data-id="${p.id}">Empecé a usarlo</button>`;
     if(!R.has(p.id)&&p.status!=='Terminado')btn+=` <button class="btn mini" data-act="use" data-id="${p.id}">Usar en rutina</button>`;
     const dl=daysLeft(p); let ex=''; if(dl!==null) ex=`<span class="${dl<7?'warn':dl<30?'or':''}">${dl<0?`Vencido hace ${-dl} días`:dl===0?'Vence hoy':`Vence en ${dl} días`} · ${fd(dueOf(p))}</span>`;
-    return `<div class="card">${ph('i_'+p.id,'📦')}<div class="tx"><b>${esc(p.name)}</b><span>${info.filter(Boolean).map(esc).join(' · ')}</span>${ex}${rv}${(p.hist||[]).slice(-1).map(h=>`<span class="rv">Envase anterior: ${esc([h.stars,h.o&&h.f?dbt(pd(h.o),pd(h.f))+' días':'',h.u+' usos',h.rebuy&&h.rebuy!=='—'?'recomprar: '+h.rebuy:'',h.comment].filter(Boolean).join(' · '))}</span>`).join('')}${bar}${btn}</div><button class="ed" data-act="edit" data-id="${p.id}">✎</button></div>`};
-  let h=''; groups.forEach(([l,a])=>{if(a.length) h+=`<div class="gh">${l} · ${a.length}</div>`+a.map(card).join('')});
+    return `<div class="card" data-s="${esc(norm(p.name))}">${ph('i_'+p.id,'📦')}<div class="tx"><b>${esc(p.name)}</b><span>${info.filter(Boolean).map(esc).join(' · ')}</span>${ex}${rv}${(p.hist||[]).slice(-1).map(h=>`<span class="rv">Envase anterior: ${esc([h.stars,h.o&&h.f?dbt(pd(h.o),pd(h.f))+' días':'',h.u+' usos',h.rebuy&&h.rebuy!=='—'?'recomprar: '+h.rebuy:'',h.comment].filter(Boolean).join(' · '))}</span>`).join('')}${bar}${btn}</div><button class="ed" data-act="edit" data-id="${p.id}">✎</button></div>`};
+  let h=''; groups.forEach(([l,a])=>{if(a.length) h+=`<div class="grp"><div class="gh">${l} · ${a.length}</div>`+a.map(card).join('')+'</div>'});
   const fl=sec==='inv'?'<div>'+['Todo','Rostro','Cuerpo','Cabello','Maquillaje'].map(c=>`<span class="chip${c===invF?'':' rest'}" data-act="filt" data-c="${c}">${c}</span>`).join('')+'</div>':'';
-  return fl+(h||'<div class="empty">Aquí no hay productos todavía.<br>Agrega lo que ya tienes para tu Project Pan.</div>')
+  return fl+`<input id="iq" class="sq" type="search" placeholder="🔍 Buscar en el inventario…" value="${esc(invQ)}">`+(h||'<div class="empty">Aquí no hay productos todavía.<br>Agrega lo que ya tienes para tu Project Pan.</div>')
    +'<button class="btn wide pri" data-act="add">+ Agregar al inventario</button>'+(sec==='inv'?'<button class="btn wide" data-act="exp">⬇️ Exportar JSON</button><button class="btn wide" data-act="imp">⬆️ Importar JSON</button>':'');
 }
 function form(title,fields,v,onSave,onDel){
@@ -377,11 +399,28 @@ function edit(p){
     arr.push({id:it.id,when:o.when,note:o.note,days:o.days||[],e:mk?'💄':'🧴'});persist();render()});
 }
 function editInv(p){
-  const fields=[{k:'name',l:'Producto',t:'text'},{k:'cat',l:'Categoría',t:'select',o:['Rostro','Cuerpo','Cabello','Maquillaje']},{k:'status',l:'Estado',t:'select',o:['Sin abrir','En uso','Terminado']},{k:'reg',l:'Registro (Parcial = ya estaba abierto antes de la app)',t:'select',o:['Completo','Parcial']},{k:'total',l:'Usos que estimas que dura',t:'number'},{k:'opened',l:'Fecha de apertura (aprox. si ya estaba abierto)',t:'date'},{k:'pao',l:'Duración después de abrir, en meses (el frasquito, ej. 12)',t:'number'},{k:'expiry',l:'Caducidad impresa',t:'date'},{k:'finished',l:'Fecha en que se terminó',t:'date'},{k:'stars',l:'Reseña · calificación',t:'select',o:STARS},{k:'rebuy',l:'¿Lo volverías a comprar?',t:'select',o:REB},{k:'comment',l:'Comentarios (¿me funcionó?)',t:'text'}];
+  const fields=[{k:'name',l:'Producto',t:'text'},{k:'cat',l:'Categoría',t:'select',o:['Rostro','Cuerpo','Cabello','Maquillaje']},{k:'status',l:'Estado',t:'select',o:['Sin abrir','En uso','Terminado']},{k:'tipo',l:'Tipo de paso (opcional)',t:'select',o:TIPOS},{k:'reg',l:'Registro (Parcial = ya estaba abierto antes de la app)',t:'select',o:['Completo','Parcial']},{k:'total',l:'Usos que estimas que dura',t:'number'},{k:'opened',l:'Fecha de apertura (aprox. si ya estaba abierto)',t:'date'},{k:'pao',l:'Duración después de abrir, en meses (el frasquito, ej. 12)',t:'number'},{k:'expiry',l:'Caducidad impresa',t:'date'},{k:'finished',l:'Fecha en que se terminó',t:'date'},{k:'stars',l:'Reseña · calificación',t:'select',o:STARS},{k:'rebuy',l:'¿Lo volverías a comprar?',t:'select',o:REB},{k:'comment',l:'Comentarios (¿me funcionó?)',t:'text'}];
   form(p?'Editar':'Agregar al inventario',fields,p||{cat:CAT[sec]||'Rostro',status:'Sin abrir',reg:'Completo'},o=>{
     if(!(o.name||'').trim())return; if(o.status==='En uso'&&!o.opened)o.opened=key(new Date());
     if(p)Object.assign(p,o);else data.inv.push(Object.assign({id:'n'+Date.now()},o));persist();render()},
    p?()=>{if(routineIds().has(p.id)){alert('Está en una rutina: quítalo de ahí primero.');return}data.inv.splice(data.inv.indexOf(p),1);persist();render()}:null);
+}
+function listo(list,extras,cat,onSave){
+  const d=$('dlg'); let ex=[...extras];
+  const draw=()=>{
+    d.innerHTML=`<form method="dialog"><h2>Listo ✓</h2><div class="fld">Marca lo que sí usaste</div>`+list.map((l,i)=>`<label class="ck"><input type="checkbox" data-i="${i}" ${l.on?'checked':''}><span>${esc((inv(l.id)||{}).name)}</span></label>`).join('')
+     +`<div class="fld" style="margin-top:12px">Adicionales (no previstos)</div>`+ex.map((e,i)=>`<span class="chip" data-x="${i}">${esc((inv(e)||{}).name)} ×</span>`).join('')
+     +`<div class="fld"><input id="xq" type="search" class="sq" placeholder="🔍 Buscar para agregar adicional…" style="margin:0"></div><div id="xr"></div><div class="row"><button value="x" class="btn">Cancelar</button><button value="ok" class="btn pri">Guardar</button></div></form>`;
+    d.querySelectorAll('input[data-i]').forEach(c=>c.onchange=()=>{list[c.dataset.i].on=c.checked});
+    d.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ex.splice(+c.dataset.x,1);draw()});
+    const xq=d.querySelector('#xq'),xr=d.querySelector('#xr');
+    xq.oninput=()=>{const q=norm(xq.value.trim());if(!q){xr.innerHTML='';return}
+      const m=data.inv.filter(x=>x.status!=='Terminado'&&norm(x.name).includes(q)).slice(0,6);
+      xr.innerHTML=m.map(x=>`<div class="ck" data-id="${x.id}">＋ ${esc(x.name)}</div>`).join('')+`<div class="ck" data-new="1">✚ Crear «${esc(xq.value.trim())}»</div>`;
+      xr.querySelectorAll('.ck').forEach(r=>r.onclick=()=>{ex.push(r.dataset.new?ensure(xq.value.trim(),cat):r.dataset.id);draw()})};
+    d.querySelector('form').onsubmit=e=>{if(e.submitter.value==='ok')onSave(list,ex)};
+  };
+  draw(); d.showModal();
 }
 function share(){
   const blob=new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),data,photos,done},null,1)],{type:'application/json'});
@@ -394,6 +433,7 @@ $('imp').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;f
   data=j.data;fix();photos=j.photos||{};done=j.done||{};persist();savePhotos();save();render()}catch(err){alert('Archivo no válido')}})};
 $('secs').onclick=e=>{const b=e.target.closest('button');if(b){sec=b.dataset.s;sub='r';render()}};
 $('subs').onclick=e=>{const b=e.target.closest('button');if(b){sub=b.dataset.u;render()}};
+$('list').addEventListener('input',e=>{if(e.target.id==='iq'){invQ=e.target.value;applyQ()}});
 $('list').addEventListener('click',ev=>{
   const pb=ev.target.closest('.ph[data-k]');
   if(pb){const k=pb.dataset.k; if(ev.target.classList.contains('x')){if(confirm('¿Quitar la foto?')){delete photos[k];savePhotos();render()}} else{pickFor=k;$('file').click()} return}
@@ -421,6 +461,11 @@ $('list').addEventListener('click',ev=>{
     if(p.cat==='Rostro'){const ks=[...new Set(Object.values(P).map(v=>v.k))];
       form('¿En qué paso lo usas?',[{k:'sel',l:p.name,t:'select',o:ks.map(k=>P[k].n)}],{},o=>{const k=ks.find(x=>P[x].n===o.sel);swap(k,p);persist();render()})}
     else{if(p.cat==='Maquillaje'&&!data.mk.base.length)data.mk.since=T;({Cuerpo:data.body,Cabello:data.hair,Maquillaje:data.mk.base})[p.cat].push({id:p.id,when:'Ducha',note:'',days:[],e:'🧴'});p.status='En uso';p.opened=p.opened||T;persist();render()}}
+  else if(act==='nm') alert(a.dataset.n);
+  else if(act==='listo'){const k=key(cur),dow=cur.getDay(),mark=(L2,rk,ex)=>{L2.forEach(l=>{if(l.on)done[l.x]=true;else delete done[l.x]});data.add[rk]=ex;data.reg[rk]=1;persist();save();render()};
+    if(sec==='face'){const rk=`${k}|${tab}`,L=routine(cur)[tab].map((p,i)=>({p,i})).filter(z=>z.p.k).map(({p,i})=>{const x=`${k}|${tab}|${i}`;return{id:faceIdAt(p.k,k),x,on:data.reg[rk]?!!done[x]:true}});listo(L,data.add[rk]||[],'Rostro',(L2,ex)=>mark(L2,rk,ex))}
+    else if(sec==='mk'){const L0=mkDay(k),L=data.mk.base.map(b=>({id:b.id,on:!L0.off.includes(b.id)}));listo(L,L0.extra,'Maquillaje',(L2,ex)=>{L0.off=L2.filter(l=>!l.on).map(l=>l.id);L0.extra=ex;persist();render()})}
+    else{const rk=`${k}|${sec}`,L=data[sec].filter(q=>q.days.includes(dow)).map(q=>{const x=`${k}|${sec}|${q.id}`;return{id:q.id,x,on:data.reg[rk]?!!done[x]:true}});listo(L,data.add[rk]||[],CAT[sec],(L2,ex)=>mark(L2,rk,ex))}}
   else if(act==='exp') share(); else if(act==='imp') $('imp').click();
 });
 let pickFor=null;
