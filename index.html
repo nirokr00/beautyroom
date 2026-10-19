@@ -99,7 +99,8 @@ span.chip{margin:0 4px 6px 0}
 .car{display:flex;gap:10px;overflow-x:auto;padding:12px 2px 4px}.car .ph{width:56px;height:56px;flex:none}
 .car small{display:block;font-size:10px;max-width:58px;text-align:center;color:var(--mute);margin-top:4px;overflow-wrap:anywhere}
 .sq{display:block;width:100%;font:16px var(--sans);padding:11px 14px;margin:0 0 12px;border:1px solid var(--sand);border-radius:14px;background:#fff;color:var(--ink)}
-.rc{padding:12px 8px 4px}.rcell{flex:none;text-align:center}.rcell .ph.rest{background:#F8D9C4;display:grid;place-items:center;position:relative;font-size:26px}.rcell .ed{padding:2px 8px;font-size:14px}
+.rc{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px;overflow:visible;padding:12px 6px 6px}
+.rc .rcell .ph{width:88px;height:88px;border-radius:22px;font-size:34px;margin:0 auto}.rc small{font-size:12px;max-width:none;color:var(--ink);margin-top:6px}.rcell{flex:none;text-align:center}.rcell .ph.rest{background:#F8D9C4;display:grid;place-items:center;position:relative;font-size:26px}.rcell .ed{padding:2px 8px;font-size:14px}
 </style>
 </head>
 <body>
@@ -211,7 +212,7 @@ let cur=noon(new Date()), tab = new Date().getHours()>=17||new Date().getHours()
 let done={}; try{done=JSON.parse(localStorage.getItem('skin-done')||'{}')}catch(e){}
 const save=()=>{try{localStorage.setItem('skin-done',JSON.stringify(done))}catch(e){}};
 
-const row=(id,n,t,ed)=>{const x=inv(id)||{name:'?'};return `<div class="rcell">${ph('i_'+id,'🧴',n)}${photos['i_'+id]?'':`<small>${esc(x.name)}</small>`}${t?`<small>${esc(t)}</small>`:''}${ed||''}</div>`};
+const row=(id,n,t,ed)=>{const x=inv(id)||{name:'?'};return `<div class="rcell">${ph('i_'+id,'🧴',n)}<small>${esc(x.name)}</small>${t?`<small>${esc(t)}</small>`:''}${ed||''}</div>`};
 function renderFace(){
   const r=routine(cur), today=noon(new Date());
   const diff=Math.round((cur-today)/864e5);
