@@ -100,7 +100,7 @@ span.chip{margin:0 4px 6px 0}
 .car small{display:block;font-size:10px;max-width:58px;text-align:center;color:var(--mute);margin-top:4px;overflow-wrap:anywhere}
 .sq{display:block;width:100%;font:16px var(--sans);padding:11px 14px;margin:0 0 12px;border:1px solid var(--sand);border-radius:14px;background:#fff;color:var(--ink)}
 .rc{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px;overflow:visible;padding:12px 6px 6px}
-.rc .rcell .ph{width:72px;height:72px;border-radius:19px;font-size:28px;margin:0 auto}.rc small{font-size:11px;max-width:none;color:var(--ink);margin-top:6px}.rcell{flex:none;text-align:center}.rcell .ph.rest{background:#F8D9C4;display:grid;place-items:center;position:relative;font-size:26px}.rcell .ed{padding:2px 8px;font-size:14px}
+.rc .rcell .ph{width:98px;height:98px;border-radius:25px;font-size:40px;margin:0 auto}.rc small{font-size:11px;max-width:none;color:var(--ink);margin-top:6px}.rcell{flex:none;text-align:center}.rcell .ph.rest{background:#F8D9C4;display:grid;place-items:center;position:relative;font-size:26px}.rcell .ed{padding:2px 8px;font-size:14px}
 </style>
 </head>
 <body>
@@ -212,7 +212,7 @@ let cur=noon(new Date()), tab = new Date().getHours()>=17||new Date().getHours()
 let done={}; try{done=JSON.parse(localStorage.getItem('skin-done')||'{}')}catch(e){}
 const save=()=>{try{localStorage.setItem('skin-done',JSON.stringify(done))}catch(e){}};
 
-const row=(id,n,t,ed)=>{const x=inv(id)||{name:'?'};return `<div class="rcell">${ph('i_'+id,'🧴',n)}<small>${esc(x.name)}</small>${t?`<small>${esc(t)}</small>`:''}${ed||''}</div>`};
+const row=(id,n,t,ed)=>{const x=inv(id)||{name:'?'};return `<div class="rcell">${ph('i_'+id,'🧴',n,ed)}<small>${esc(x.name)}</small>${t?`<small>${esc(t)}</small>`:''}</div>`};
 function renderFace(){
   const r=routine(cur), today=noon(new Date());
   const diff=Math.round((cur-today)/864e5);
@@ -302,7 +302,7 @@ const persist=()=>{try{localStorage.setItem('skin-data',JSON.stringify(data))}ca
 let sec='face', sub='r', invF='Todo';
 const CAT={face:'Rostro',body:'Cuerpo',hair:'Cabello',mk:'Maquillaje'}, SEC={Rostro:'face',Cuerpo:'body',Cabello:'hair',Maquillaje:'mk'};
 const STARS=['—','★','★★','★★★','★★★★','★★★★★'], REB=['—','Sí','Tal vez','No'];
-const ph=(k,e,n)=>`<div class="ph" data-k="${k}">${photos[k]?`<div class="img" style="background-image:url(${photos[k]})"></div>`:e}<span class="add${photos[k]?' x':''}">${photos[k]?'×':'+'}</span>${n?`<span class="n">${n}</span>`:''}</div>`;
+const ph=(k,e,n,ed)=>`<div class="ph" data-k="${k}" data-ed="${ed||''}">${photos[k]?`<div class="img" style="background-image:url(${photos[k]})"></div>`:e}<span class="add">✎</span>${n?`<span class="n">${n}</span>`:''}</div>`;
 
 function render(){
   const f=sec==='face', all=sec==='inv', q=s=>document.querySelector(s), hid=all||sub==='i', fr=f&&sub==='r';
@@ -319,7 +319,7 @@ function render(){
 function evBtns(sc,t){return `<button class="btn wide" data-act="eadd" data-t="${t}">+ Agregar a la rutina</button><button class="btn wide" data-act="dayed" data-t="${t}">Rutina de este día…</button>`}
 function rutHTML(sc,t){
   const k=key(cur), L=items(k,sc,t), off=(data.mk.log[k]||{}).off||[], ex=(data.mk.log[k]||{}).extra||[], tt=sc==='face'?t:sc, rk=`${k}|${tt}`;
-  const cells=L.map((it,i)=>row(it.id,i+1,(sc==='mk'&&off.includes(it.id)?'No lo usé':'')+wr(it.id),`<button class="ed" data-act="eedit" data-ev="${it.ev}" data-t="${t}">✎</button>`)).join('');
+  const cells=L.map((it,i)=>row(it.id,i+1,(sc==='mk'&&off.includes(it.id)?'No lo usé':'')+wr(it.id),`eedit|${it.ev}|${t}`)).join('');
   return (L.length?`<div class="rl"><div class="car rc">${cells}</div></div>`:'<div class="empty">Sin rutina este día 🌿</div>')
    +(sc==='mk'&&ex.length?'<div class="gh">Extras de este día</div><div class="rl"><div class="car rc">'+ex.map(e=>row(e,'','Extra')).join('')+'</div></div>':'')
    +(L.length&&k<=key(new Date())?`<button class="btn wide pri" data-act="listo">${sc!=='mk'&&data.reg[rk]?'Registrada ✓ · corregir':'Listo'}</button>`:'')+evBtns(sc,t)}
@@ -365,11 +365,11 @@ function invHTML(cat){
     } else btn=`<button class="btn mini" data-act="start" data-id="${p.id}">Empecé a usarlo</button>`;
     if(!R.has(p.id)&&p.status!=='Terminado')btn+=` <button class="btn mini" data-act="use" data-id="${p.id}">Usar en rutina</button>`;
     const dl=daysLeft(p); let ex=''; if(dl!==null) ex=`<span class="${dl<7?'warn':dl<30?'or':''}">${dl<0?`Vencido hace ${-dl} días`:dl===0?'Vence hoy':`Vence en ${dl} días`} · ${fd(dueOf(p))}</span>`;
-    return `<div class="card" data-s="${esc(norm(p.name))}">${ph('i_'+p.id,'📦')}<div class="tx"><b>${esc(p.name)}</b><span>${info.filter(Boolean).map(esc).join(' · ')}</span>${ex}${rv}${(p.hist||[]).slice(-1).map(h=>`<span class="rv">Envase anterior: ${esc([h.stars,h.o&&h.f?dbt(pd(h.o),pd(h.f))+' días':'',h.u+' usos',h.rebuy&&h.rebuy!=='—'?'recomprar: '+h.rebuy:'',h.comment].filter(Boolean).join(' · '))}</span>`).join('')}${bar}${btn}</div><button class="ed" data-act="edit" data-id="${p.id}">✎</button></div>`};
+    return `<div class="card" data-s="${esc(norm(p.name))}">${ph('i_'+p.id,'📦','','iedit|'+p.id)}<div class="tx"><b>${esc(p.name)}</b><span>${info.filter(Boolean).map(esc).join(' · ')}</span>${ex}${rv}${(p.hist||[]).slice(-1).map(h=>`<span class="rv">Envase anterior: ${esc([h.stars,h.o&&h.f?dbt(pd(h.o),pd(h.f))+' días':'',h.u+' usos',h.rebuy&&h.rebuy!=='—'?'recomprar: '+h.rebuy:'',h.comment].filter(Boolean).join(' · '))}</span>`).join('')}${bar}${btn}</div></div>`};
   let h=''; groups.forEach(([l,a])=>{if(a.length) h+=`<div class="grp"><div class="gh">${l} · ${a.length}</div>`+a.map(card).join('')+'</div>'});
   const fl=sec==='inv'?'<div>'+['Todo','Rostro','Cuerpo','Cabello','Maquillaje'].map(c=>`<span class="chip${c===invF?'':' rest'}" data-act="filt" data-c="${c}">${c}</span>`).join('')+'</div>':'';
-  return fl+`<input id="iq" class="sq" type="search" placeholder="🔍 Buscar en el inventario…" value="${esc(invQ)}">`+(h||'<div class="empty">Aquí no hay productos todavía.<br>Agrega lo que ya tienes para tu Project Pan.</div>')
-   +'<button class="btn wide pri" data-act="add">+ Agregar al inventario</button>'+(sec==='inv'?'<button class="btn wide" data-act="exp">⬇️ Exportar JSON</button><button class="btn wide" data-act="imp">⬆️ Importar JSON</button>':'');
+  return fl+'<button class="btn wide pri" data-act="add" style="margin:0 0 12px">+ Agregar al inventario</button>'+`<input id="iq" class="sq" type="search" placeholder="🔍 Buscar en el inventario…" value="${esc(invQ)}">`+(h||'<div class="empty">Aquí no hay productos todavía.<br>Agrega lo que ya tienes para tu Project Pan.</div>')
+   +(sec==='inv'?'<button class="btn wide" data-act="exp">⬇️ Exportar JSON</button><button class="btn wide" data-act="imp">⬆️ Importar JSON</button>':'');
 }
 function form(title,fields,v,onSave,onDel){
   const d=$('dlg');
@@ -464,6 +464,14 @@ function askRep(p){
     act.forEach(e=>{if(!n){if(e.from>=T)data.ev.splice(data.ev.indexOf(e),1);else e.to=addD(T,-1);return}
       if(e.from>=T)e.inv=n.id;else{data.ev.push(Object.assign({},e,{id:'e'+Date.now()+e.id,inv:n.id,from:T,skip:[]}));e.to=addD(T,-1)}});
     if(n){n.status='En uso';n.opened=n.opened||T}persist();render()}),0)}
+function pmenu(k,ed){
+  const d=$('dlg'), b=(v,l)=>`<button type="button" class="btn wide" data-v="${v}">${l}</button>`;
+  d.innerHTML=`<h2>${esc((inv(k.slice(2))||{}).name||'Producto')}</h2>`+b('p',photos[k]?'📷 Cambiar foto':'📷 Agregar foto')+(ed?b('e',ed.startsWith('eedit')?'✎ Editar en la rutina':'✎ Editar producto'):'')+(photos[k]?b('x','Quitar foto'):'')+b('','Cancelar');
+  d.querySelectorAll('button').forEach(x=>x.onclick=()=>{d.close();const v=x.dataset.v;
+    if(v==='p'){pickFor=k;$('file').click()}
+    else if(v==='x'){delete photos[k];savePhotos();render()}
+    else if(v==='e'){const[t,a,c]=ed.split('|');if(t==='eedit'){const e=data.ev.find(z=>z.id===a);if(e)editEv(e);else dayEd(sec,c)}else if(t==='iedit')editInv(inv(a))}});
+  d.showModal()}
 function share(){
   const blob=new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),data,photos,done},null,1)],{type:'application/json'});
   const f=new File([blob],`skincare-respaldo-${key(new Date())}.json`,{type:'application/json'});
@@ -478,7 +486,7 @@ $('subs').onclick=e=>{const b=e.target.closest('button');if(b){sub=b.dataset.u;r
 $('list').addEventListener('input',e=>{if(e.target.id==='iq'){invQ=e.target.value;applyQ()}});
 $('list').addEventListener('click',ev=>{
   const pb=ev.target.closest('.ph[data-k]');
-  if(pb){const k=pb.dataset.k; if(ev.target.classList.contains('x')){if(confirm('¿Quitar la foto?')){delete photos[k];savePhotos();render()}} else{pickFor=k;$('file').click()} return}
+  if(pb){if(ev.target.classList.contains('add'))pmenu(pb.dataset.k,pb.dataset.ed);return}
   const a=ev.target.closest('[data-act]'); if(!a) return;
   const act=a.dataset.act, p=a.dataset.id&&((sec==='inv'||sub==='i')?data.inv:coll()).find(x=>x.id===a.dataset.id);
   if(act==='tog'){const id=`${key(cur)}|${sec}|${p.id}`; done[id]=!done[id]; if(!done[id])delete done[id]; save(); render()}
